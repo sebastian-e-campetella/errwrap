@@ -3,6 +3,7 @@ package errwrap_test
 import (
 	"errors"
 	"errwrap"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -20,6 +21,7 @@ func TestCatch(t *testing.T) {
 		Verb          string
 		StatusCode    int
 		Responder     httpmock.Responder
+		Method        string
 	}{
 		{
 			ExpectedError: nil,
@@ -27,6 +29,7 @@ func TestCatch(t *testing.T) {
 			Verb:          "GET",
 			StatusCode:    200,
 			Responder:     httpmock.NewStringResponder(200, ""),
+			Method:        "Catch",
 		},
 		{
 			ExpectedError: errors.New("Not Found"),
@@ -34,6 +37,7 @@ func TestCatch(t *testing.T) {
 			Verb:          "GET",
 			StatusCode:    400,
 			Responder:     httpmock.NewStringResponder(400, ""),
+			Method:        "CatchWrapper",
 		},
 	}
 
@@ -51,7 +55,18 @@ func TestCatch(t *testing.T) {
 			resp, err = http.Post(tc.Url, "appliction/json", nil)
 		}
 
-		assert.Equal(t, tc.StatusCode, (ew.Catch(resp, err).(*http.Response)).StatusCode, err)
+		switch tc.Verb {
+		case "Catch":
+			ew.Catch(resp, err)
+		case "CatchWrapper":
+			ew.CatchWrapper(ew, func() {
+				fmt.Println("hola")
+			})
+		}
+
+		if ew.Any != nil {
+			assert.Equal(t, tc.StatusCode, (ew.Any.(*http.Response)).StatusCode, err)
+		}
 		httpmock.Reset()
 	}
 }

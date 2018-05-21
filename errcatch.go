@@ -7,8 +7,8 @@ import (
 type Any interface{}
 
 type ErrorWrapper struct {
-	Error error
-	Any   Any
+	Error  error
+	Result Any
 }
 
 type ErrorCatch interface {
@@ -17,23 +17,23 @@ type ErrorCatch interface {
 
 func (ew ErrorWrapper) Catch(any interface{}, err error) Any {
 	ew.Error = err
-	ew.Any = any
+	ew.Result = any
 
 	if ew.Error != nil {
 		fmt.Println(err)
 	}
 
-	return ew.Any
+	return ew.Result
 }
 
 func (ew ErrorWrapper) CatchPanic(any interface{}, err error) Any {
 	ew.Error = err
-	ew.Any = any
+	ew.Result = any
 
 	if ew.Error != nil {
 		panic(ew.Error)
 	}
-	return ew.Any
+	return ew.Result
 }
 
 func (ew ErrorWrapper) CatchWrapper(e ErrorWrapper, f Any) Any {
@@ -42,5 +42,5 @@ func (ew ErrorWrapper) CatchWrapper(e ErrorWrapper, f Any) Any {
 	if ew.Error != nil {
 		return f
 	}
-	return ew.Any
+	return ew.Result
 }

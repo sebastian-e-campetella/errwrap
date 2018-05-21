@@ -64,8 +64,8 @@ func TestCatch(t *testing.T) {
 			})
 		}
 
-		if ew.Any != nil {
-			assert.Equal(t, tc.StatusCode, (ew.Any.(*http.Response)).StatusCode, err)
+		if ew.Result != nil {
+			assert.Equal(t, tc.StatusCode, (ew.Result.(*http.Response)).StatusCode, err)
 		}
 		httpmock.Reset()
 	}
